@@ -18,7 +18,7 @@ class TsumoState
           next_node = Node.new(
             tsumo: tsumo,
             state: state,
-            parent_id: node.id,
+            parent: node,
             child_ids: []
           )
           node[:child_ids] << next_node.id
@@ -54,7 +54,7 @@ class TsumoState
           node ||= Node.new(
             tsumo: tsumo,
             state: current_node[:state].next_state(tsumo),
-            parent_id: parent.id,
+            parent: parent,
             child_ids: [],
             sequence_ids: []
           )

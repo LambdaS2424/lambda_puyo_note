@@ -8,15 +8,15 @@ class Node
     @params = params
   end
 
-  def to_sequence
-    sequence = []
+  def to_pattern
+    pattern = []
     current = @params
     loop do
-      sequence << current[:tsumo]
+      pattern << current[:tsumo]
       break unless current[:parent]
       current = current[:parent]
     end
-    sequence.reverse.join
+    pattern.reverse.join
   end
 
   def id
