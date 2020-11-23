@@ -3,7 +3,6 @@
 class ColorPatternMap
   def initialize(color_sequence)
     @pattern_to_color = Hash[Puyo::Pattern.all.map { |pat| [pat, color_sequence.used_colors] }]
-    # @color_to_pattern = Hash[color_sequence.used_colors.map { |color| [color, Puyo::Pattern.all]}]
   end
 
   def []=(pattern, colors)

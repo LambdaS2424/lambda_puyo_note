@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'forwardable'
-
 module Tasks
   class Analyzer < Thor
     include Thor::Actions
@@ -9,6 +7,7 @@ module Tasks
     desc 'debug', 'debug'
     def debug
       db_connection do
+        shape = Shape.load(file: 'resources/shapes/shape001.shp')
         binding.pry
       end
     end

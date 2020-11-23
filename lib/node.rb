@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'forwardable'
+
 class Node
   extend Forwardable
   def_delegators(:@params, *Hash.instance_methods(false))
