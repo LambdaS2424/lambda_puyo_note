@@ -7,7 +7,10 @@ module Tasks
     desc 'debug', 'debug'
     def debug
       db_connection do
-        shape = Shape.load(file: 'resources/shapes/shape001.shp')
+        shape_field = ShapeField.load(file: 'resources/shape_fields/field001.shp')
+        tsumo_field = TsumoField.load(file: 'resources/tsumo_fields/field001.shp')
+        ret = shape_field.match?(tsumo_field)
+
         binding.pry
       end
     end

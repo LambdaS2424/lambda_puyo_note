@@ -1,8 +1,14 @@
 # frozen_string_literal: true
 
-class Shape
+require 'forwardable'
+
+class Field
+  extend Forwardable
+
   attr_reader :field
   attr_reader :errors
+
+  def_delegators :@field, :[]
 
   def self.load(file:)
     result = {}

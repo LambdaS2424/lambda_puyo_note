@@ -9,6 +9,6 @@ require 'pry'
 
 require 'db'
 
-Dir[File.join(PROJECT_ROOT, 'lib', '**', '*.rb')].each do |path|
+Dir[File.join(PROJECT_ROOT, '**', '*', '*.rb')].each do |path|
   require path
 end
