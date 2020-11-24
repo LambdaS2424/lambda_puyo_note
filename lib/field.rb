@@ -47,4 +47,15 @@ class Field
 
     @errors.empty?
   end
+
+  def surroundings(coordinates)
+    coordinates.map do |(col, row)|
+      [
+        [col - 1, row],
+        [col + 1, row],
+        [col, row - 1],
+        [col, row + 1]
+      ]
+    end.flatten(1) - coordinates
+  end
 end

@@ -8,8 +8,11 @@ class ShapeField < Field
 
     groups.all? do |char, coordinates|
       next true if char == '*' # don't care
-      coordinates.map { |c| field[c] }.uniq.size == 1
-      # TODO: 隣接グループが異なる Tsumo であることをチェック
+
+      next false unless coordinates.map { |c| field[c] }.uniq.size == 1
+
+      v = field[coordinates.first]
+      surroundings(coordinates).all? { |c| field[c] != v }
     end
   end
 
