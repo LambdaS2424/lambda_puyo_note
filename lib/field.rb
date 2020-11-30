@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'forwardable'
+require 'set'
 
 class Field
   extend Forwardable
@@ -9,6 +10,7 @@ class Field
   attr_reader :errors
 
   PUYO_OBJECTS = '1234'
+  EMPTY_FIELD = Hash[(1..6).to_a.map { |col| (1..14).to_a.map { |row| [[col, row], '_'] } }.flatten(1)].freeze
 
   def_delegators :@field, :[]
 
@@ -37,7 +39,7 @@ class Field
   end
 
   def initialize(field = nil)
-    @field = field || Hash[(1..6).to_a.map { |col| (1..14).to_a.map { |row| [[col, row], '_'] } }.flatten(1)]
+    @field = field || EMPTY_FIELD.dup
   end
 
   def valid?
@@ -69,45 +71,46 @@ class Field
     coordinates.map { |coordinate| surrounding(coordinate) }.flatten(1) - coordinates
   end
 
-  def vanish
-    placed_field = @field.select { |_, c| c =~ /[#{self.class::PUYO_OBJECTS}]/  }
-    count = placed_field.count
-    return if count == 0 
+  # num_to_vanish 以上連結したぷよを消す ('_' にする)
+  def vanish(num_to_vanish: 4)
+    vanished = {}
 
-    marks = {}
-    target_no = 0
-    current_field_value = nil
-
-    loop do
-      diff = (placed_field.keys - marks.keys)
-      break if diff.empty?
-
-      # TODO: 
-      # p diff
-
-      # targets = placed_field.keys & marks.select { |_, v| v == target_no }.keys.map { |k| surrounding(k) }.flatten(1) - marks.keys
-      # # targets = (marks.keys.map { |k| surrounding(k) }.flatten(1) - marks.keys)
-
-      # if targets.empty?
-      #   coord = diff.first
-      #   marks[coord] = target_no
-      #   target_no += 1
-      #   current_field_value = placed_field[coord]
-      #   targets = placed_field.keys & surrounding(coord) - marks.keys
-      # end
-
-      # targets.each do |coord|
-      #   marks[coord] = target_no if current_field_value == placed_field[coord]
-      # end
-    end
-
-    marks.group_by { |_, no| no }.each do |no, coords|
-      if coords.size >= 4
-        coords.each { |coord| @field[coord] = '_' }
+    group_field_value.each do |_, marks|
+      if marks.size >= num_to_vanish
+        type = @field[marks.first.first]
+        vanished[type] ||= []
+        vanished[type] << marks.count
+        marks.each { |(coord, _)| @field[coord] = '_' }
       end
     end
 
-    @field
+    vanished
+  end
+
+  # ぷよが存在しない空間を埋める
+  def pack
+    tmp = @field.dup
+    @field = EMPTY_FIELD.dup
+    tmp.sort.each do |(col, row), value|
+      put_on_top(col, value)
+    end
+  end
+
+  # #vanish, #pack を安定形になるまで繰り返す
+  def play
+    stats = []
+
+    loop do
+      pack
+      vanished = vanish
+
+      break if vanished.empty?
+
+      stats << vanished
+    end
+
+    pack
+    stats
   end
 
   def height(column)
@@ -120,5 +123,48 @@ class Field
 
   def to_s
     @field.group_by { |k, _| k[1] }.map { |_, v| v.map(&:second).join }.reverse.join("\n")
+  end
+
+  private
+
+  # 隣接する同じ値の座標をグルーピングする
+  #
+  # === Return
+  # グループ番号をキーにした Hash [Hash]
+  # e.g.) { 0 => [[1, 1], [1, 2]], 1 => [[2, 1], [2, 2] } }
+  def group_field_value
+    placed_field = @field.select { |_, c| c =~ /[#{self.class::PUYO_OBJECTS}]/  }
+    count = placed_field.count
+    return {} if count == 0 
+
+    marks = {}
+    group_no = 0
+    current_field_value = nil
+
+    placed_field.each do |coord, current_field_value|
+      next if marks[coord]
+
+      catch(:placed_field_loop) do
+        marks[coord] = group_no
+        current_targets = (surrounding(coord) & placed_field.keys) - marks.keys
+
+        # 同じ group_no のラッベル付け
+        loop do
+          throw :placed_field_loop if current_targets.empty?
+
+          current_targets = current_targets.map do |c|
+            if placed_field[c] == current_field_value
+              marks[c] = group_no
+              surrounding(c) & placed_field.keys - marks.keys
+            end
+          end.flatten(1).compact
+          
+        end
+      end
+
+      group_no += 1
+    end
+
+    marks.group_by(&:second)
   end
 end

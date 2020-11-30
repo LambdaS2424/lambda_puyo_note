@@ -4,14 +4,22 @@ module Tasks
   class Analyzer < Thor
     include Thor::Actions
 
-    desc 'debug', 'debug'
-    def debug
+    desc 'debug2', 'debug2'
+    def debug2
       db_connection do
         # shape_field = ShapeField.load(file: 'resources/shape_fields/field001.shp')
         tsumo_field = TsumoField.load(file: 'resources/tsumo_fields/field001.shp')
         # ret = shape_field.match?(tsumo_field)
         # tsumo_field.place('DD', Move::COL_1_DIR_U)
-binding.pry
+
+        stats = tsumo_field.play
+        p ScoreCalculator.calc_stats(stats)
+      end
+    end
+
+    desc 'debug', 'debug'
+    def debug
+      db_connection do
         zenkeshi_sequences = Sequence.zenkeshi(6, 3)
         sequence = zenkeshi_sequences.first
 
