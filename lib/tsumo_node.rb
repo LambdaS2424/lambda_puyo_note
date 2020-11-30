@@ -2,10 +2,12 @@
 
 require 'forwardable'
 
-class Node
+class TsumoNode
   extend Forwardable
   def_delegators(:@params, *Hash.instance_methods(false))
 
+  # @param :parent
+  # @param :tsumo
   def initialize(params)
     @params = params
   end

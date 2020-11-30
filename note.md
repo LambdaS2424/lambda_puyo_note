@@ -1,11 +1,24 @@
 
 # Note
 
+## N手の手順パタン数
+
+`tasks:analyzer:move_patterns`
+
+```
+N      all  no_chigiri
+1       22          22
+2      484         412
+3    10648        6984
+4   234256      112048
+5  5153632     1739872
+```
+
 ## N手のツモパタン数
 
 8手　で 95% のパタンが確定、13手 で全てのパタンが確定
 
-`tasks::analyzer:pattern_group`
+`tasks:analyzer:pattern_group`
 
 ```
 N   patterns  percent
@@ -115,8 +128,8 @@ N   theory  actual     lack
  7       2      26    0.0 %
  8       2       4    0.0 %
  9       2       2    0.0 %
-
 10       2       2    0.0 %
+
  2       3       0    0.0 %
  3       3       0    0.0 %
  4       3       0    0.0 %

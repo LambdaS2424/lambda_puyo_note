@@ -3,7 +3,7 @@
 class TsumoState
   # N 手までの理論全パタン
   def self.all_patterns(depth)
-    tree = Node.new(
+    tree = TsumoNode.new(
       state: State::ABCD,
       child_ids: [] 
     )
@@ -15,7 +15,7 @@ class TsumoState
       leaves = []
       nodes.each do |node|
         node[:state].routes.each do |tsumo, state|
-          next_node = Node.new(
+          next_node = TsumoNode.new(
             tsumo: tsumo,
             state: state,
             parent: node,
@@ -32,7 +32,7 @@ class TsumoState
 
   # N 手までの実ツモを木構造で表現する
   def self.make_tree(sequences, depth: 5)
-    root = Node.new(
+    root = TsumoNode.new(
       state: State::ABCD,
       child_ids: [],
       sequence_ids: sequences.pluck(:id)
@@ -51,7 +51,7 @@ class TsumoState
         pattern.chars.each_slice(2).map(&:join).each do |tsumo|
           parent = current_node
           node = nodes[parent.id + tsumo]
-          node ||= Node.new(
+          node ||= TsumoNode.new(
             tsumo: tsumo,
             state: current_node[:state].next_state(tsumo),
             parent: parent,

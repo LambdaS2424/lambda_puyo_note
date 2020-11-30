@@ -7,11 +7,46 @@ module Tasks
     desc 'debug', 'debug'
     def debug
       db_connection do
-        shape_field = ShapeField.load(file: 'resources/shape_fields/field001.shp')
+        # shape_field = ShapeField.load(file: 'resources/shape_fields/field001.shp')
         tsumo_field = TsumoField.load(file: 'resources/tsumo_fields/field001.shp')
-        ret = shape_field.match?(tsumo_field)
+        # ret = shape_field.match?(tsumo_field)
+        # tsumo_field.place('DD', Move::COL_1_DIR_U)
+binding.pry
+        zenkeshi_sequences = Sequence.zenkeshi(6, 3)
+        sequence = zenkeshi_sequences.first
 
-        binding.pry
+        tsumo_field = TsumoField.new
+
+        move_pats = MoveState.all_patterns(5, no_chigiri: true, for_pattern: sequence.sorted_pattern)
+
+        leaves = move_pats.last[1]
+        leaves[100..-1].each do |leave|
+          moves = leave.to_pattern
+          tsumos = sequence.sorted_pattern.chars.each_slice(2).map(&:join)
+          moves.each_with_index do |move, index|
+            tsumo_field.place(tsumos[index], move)
+          end
+          puts tsumo_field
+
+          binding.pry
+          break
+        end
+        # sequences = TsumoPattern.zenkeshi(6, 3)
+
+        #binding.pry
+      end
+    end
+
+    desc 'move_patterns', 'N手 の配置パタン数'
+    def move_patterns(depth = 5)
+      depth = depth.to_i
+
+      db_connection do
+        result = MoveState.all_patterns(depth, no_chigiri: true)
+
+        result_for_print = result.map { |(d, _, count)| [d, 22 ** d, count] }
+        result_for_print = result_for_print.unshift(%w[N all no_chigiri])
+        print_table(result_for_print)
       end
     end
 
@@ -25,7 +60,7 @@ module Tasks
       end
     end
 
-    desc 'make_tree', 'N 手までの実ツモを木構造で表現する'
+    desc 'make_tree', 'N 手までの実ツモ（65536パタンのツモ）を木構造で表現する'
     def make_tree
       db_connection do
         root, leaves, nodes = TsumoState.make_tree(sequences, depth: 10)

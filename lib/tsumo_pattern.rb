@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Sequence < ActiveRecord::Base
+class TsumoPattern
   def self.zenkeshi(depth, colors)
     Sequence.all.select do |sequence|
       pattern = sequence.sorted_pattern
