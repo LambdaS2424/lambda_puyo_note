@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 class Sequence < ActiveRecord::Base
-  def self.zenkeshi(depth, colors)
+  # deputh 手 colors 色の全消し可能性のある色数ぷよ数である Sequence の一覧を返す
+  def self.zenkeshi(depth:, colors:)
     Sequence.all.select do |sequence|
       pattern = sequence.sorted_pattern
       # 登場するぷよを色別にグルーピング

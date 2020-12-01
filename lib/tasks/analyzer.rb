@@ -8,26 +8,26 @@ module Tasks
     def debug2
       db_connection do
         # shape_field = ShapeField.load(file: 'resources/shape_fields/field001.shp')
-        tsumo_field = TsumoField.load(file: 'resources/tsumo_fields/field001.shp')
+        tsumo_field = TsumoField.load(file: 'resources/tsumo_fields/field002.shp')
         # ret = shape_field.match?(tsumo_field)
         # tsumo_field.place('DD', Move::COL_1_DIR_U)
 
-        stats = tsumo_field.play
-        p ScoreCalculator.calc_stats(stats)
+        start_points = tsumo_field.start_points
+        p start_points
       end
     end
 
     desc 'debug', 'debug'
     def debug
       db_connection do
-        zenkeshi_sequences = Sequence.zenkeshi(6, 3)
+        zenkeshi_sequences = Sequence.zenkeshi(depth: 6, colors: 3)
         sequence = zenkeshi_sequences.first
 
         tsumo_field = TsumoField.new
 
         move_pats = MoveState.all_patterns(5, no_chigiri: true, for_pattern: sequence.sorted_pattern)
 
-        leaves = move_pats.last[1]
+        leaves = move_pats.last
         leaves[100..-1].each do |leave|
           moves = leave.to_pattern
           tsumos = sequence.sorted_pattern.chars.each_slice(2).map(&:join)
@@ -52,7 +52,7 @@ module Tasks
       db_connection do
         result = MoveState.all_patterns(depth, no_chigiri: true)
 
-        result_for_print = result.map { |(d, _, count)| [d, 22 ** d, count] }
+        result_for_print = result.map.with_index { |nodes, index| [index + 1, 22 ** (index + 1), nodes.size] }
         result_for_print = result_for_print.unshift(%w[N all no_chigiri])
         print_table(result_for_print)
       end

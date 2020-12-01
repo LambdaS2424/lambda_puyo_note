@@ -125,6 +125,23 @@ class Field
     @field.group_by { |k, _| k[1] }.map { |_, v| v.map(&:second).join }.reverse.join("\n")
   end
 
+  # 発火可能な座標と色を返す
+  #
+  # すでに 4連結以上している箇所がない前提
+  def start_points
+    result = Set.new
+    candidates = group_field_value.select { |_, coords| coords.size == 3 }
+    candidates.each do |_, coords|
+      coords.each do |coord, _|
+        surrounding(coord).each do |c|
+          result << [c, @field[coord]] if @field[c] == '_'
+        end
+      end
+    end
+
+    result
+  end
+
   private
 
   # 隣接する同じ値の座標をグルーピングする

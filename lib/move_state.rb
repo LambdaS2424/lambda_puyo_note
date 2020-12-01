@@ -15,7 +15,7 @@ class MoveState
 
     depth.times do |d|
       nodes = patterns(nodes, no_chigiri: no_chigiri, for_double: pattern[d])
-      result << [d + 1, nodes, nodes.count]
+      result << nodes # [d + 1, nodes, nodes.count]
     end
 
     result
